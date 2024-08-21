@@ -1,0 +1,13 @@
+form {
+  background-color: rgb(64, 194, 101);
+  margin: 5%;
+  padding: 5%;
+}
+
+.bg {
+  display: flex;
+  background-color: rgb(64, 194, 101);
+  margin: 5%;
+  padding: 5%;
+}
+
