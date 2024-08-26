@@ -1,32 +1,35 @@
 import React from 'react';
 
-function Login({ user, onChange, onSubmit, response }) {
+const Login = ({ user, setUser, handleLogin }) => {
+  const handleChange = (e) => {
+    setUser({
+      ...user,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   return (
-    <>
-      <form onSubmit={onSubmit}>
-        <div>
-          <label>Username:</label>
-          <input
-            type='text'
-            name='username'
-            value={user.username}
-            onChange={onChange}
-            required
-          />
-          <label>Password:</label>
-          <input
-            type='password'
-            name='password'
-            value={user.password}
-            onChange={onChange}
-            required
-          />
-        </div>
-        <button type='submit'>Login</button>
-        {response && <div>{response.data.message}</div>}
-      </form>
-    </>
+    <form onSubmit={handleLogin}>
+      <h1>Login</h1>
+      <input
+        type='text'
+        name='username'
+        value={user.username}
+        onChange={handleChange}
+        placeholder='Username'
+      />
+      <input
+        type='password'
+        name='password'
+        value={user.password}
+        onChange={handleChange}
+        placeholder='Password'
+      />
+      <button className='event-button' type='submit'>
+        Login
+      </button>
+    </form>
   );
-}
+};
 
 export default Login;

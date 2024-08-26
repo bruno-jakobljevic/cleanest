@@ -1,77 +1,177 @@
-import React, { useState } from 'react';
+import axios from 'axios';
+import Swal
+ from 'sweetalert2';
+const Events = ({
+  decoded,
+  events,
+  setEvents,
+  applications,
+  setApplications,
+  allUsers,
+}) => {
+  const userId = decoded.user_id;
+  const roleId = decoded.role_id;
 
-function Events({ events, roleId, onApply, onSubmit }) {
-  const [newEvent, setNewEvent] = useState({
-    name: '',
-    description: '',
-    time: '',
-  });
-
-  const handleInputChange = (e) => {
-    setNewEvent({
-      ...newEvent,
-      [e.target.name]: e.target.value,
-    });
+  const handleApply = async (eventId) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:3001/userEventApplications/apply/${userId}/${eventId}`
+      );
+      if (response.status === 201) {
+        setApplications([
+          ...applications,
+          { user_id: userId, event_id: eventId },
+        ]);
+        Swal.fire({
+          text: "You've successfully applied to the event!",
+          showConfirmButton: false,
+          timer: 1500,
+          icon: 'success',
+        });
+      }
+    } catch (error) {
+      console.error(
+        'Failed to apply to event:',
+        error.response?.data?.error || error.message
+      );
+    }
   };
 
-  const handleEventSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(newEvent);
+  const handleUnapply = async (eventId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:3001/userEventApplications/unapply/${userId}/${eventId}`
+      );
+      if (response.status === 200) {
+        setApplications(applications.filter((app) => app.event_id !== eventId));
+        Swal.fire({
+          text: "You've successfully unapplied from the event!",
+          showConfirmButton: false,
+          timer: 1500,
+          icon: 'success',
+        });
+      }
+    } catch (error) {
+      console.error(
+        'Failed to unapply from event:',
+        error.response?.data?.error || error.message
+      );
+    }
+  };
+
+  const handleDelete = async (eventId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:3001/events/deleteEvent/${eventId}`
+      );
+      if (response.status === 200) {
+        setApplications((prevApplications) =>
+          prevApplications.filter((app) => app.event_id !== eventId)
+        );
+        setEvents(events.filter((event) => event.id !== eventId));
+        Swal.fire({
+          text: 'Event deleted successfully!',
+          showConfirmButton: false,
+          timer: 1500,
+          icon: 'success',
+        });
+      }
+    } catch (error) {
+      console.error(
+        'Failed to delete event:',
+        error.response?.data?.error || error.message
+      );
+    }
+  };
+
+  const isUserApplied = (eventId) => {
+    return applications.some(
+      (app) => app.event_id === eventId && app.user_id === userId
+    );
+  };
+
+  const getEventApplications = (eventId) => {
+    return applications
+      .filter((app) => app.event_id === eventId)
+      .map((app) => {
+        const appliedUser = allUsers.find((user) => user.id === app.user_id);
+        if (appliedUser) {
+          return {
+            username: appliedUser.username,
+            email: appliedUser.email,
+          };
+        } else {
+          return null;
+        }
+      })
+      .filter((user) => user !== null);
   };
 
   return (
-    <div>
-      <header>
-        <h1>Events</h1>
-        <ul>
-          {events.map((event) => (
-            <li key={event.id}>
-              <h2>{event.name}</h2>
-              <p>{event.description}</p>
-              <p>{new Date(event.time).toLocaleString()}</p>
-              {roleId >= 1 && (
-                <button onClick={() => onApply(event.id)}>Apply</button>
+    <div className='main-container'>
+      <ul className='events'>
+        {events.map((event) => {
+          const eventApplications = getEventApplications(event.id);
+          const isUserAppliedToEvent = isUserApplied(event.id);
+          return (
+            <li key={event.id} className='card card-contaier'>
+              <h3>{event.name.toUpperCase()}</h3>
+              <p>
+                <strong>Description: </strong>
+                {event.description}
+              </p>
+              <p>
+                <strong>Location: </strong>
+                {event.location}
+              </p>
+              <p>
+                <strong>Time: </strong>
+                {new Date(event.time).toLocaleString()}
+              </p>
+              {roleId < 3 ? (
+                isUserAppliedToEvent ? (
+                  <button
+                    className='event-button'
+                    onClick={() => handleUnapply(event.id)}
+                  >
+                    Quit
+                  </button>
+                ) : (
+                  <button
+                    className='event-button'
+                    onClick={() => handleApply(event.id)}
+                  >
+                    Apply
+                  </button>
+                )
+              ) : (
+                <div>
+                  <h4>Applied users:</h4>
+                  <ul>
+                    {eventApplications.length > 0 ? (
+                      eventApplications.map((user, index) => (
+                        <li key={index}>
+                          {user.username} ({user.email})
+                        </li>
+                      ))
+                    ) : (
+                      <li>No users have applied</li>
+                    )}
+                    <button
+                      className='event-button'
+                      onClick={() => handleDelete(event.id)}
+                    >
+                      Delete
+                    </button>
+                  </ul>
+                </div>
               )}
             </li>
-          ))}
-        </ul>
-      </header>
-      {roleId >= 3 && (
-        <form onSubmit={handleEventSubmit}>
-          <h2>Add New Event</h2>
-          <div>
-            <label>Event Name:</label>
-            <input
-              type='text'
-              name='name'
-              value={newEvent.name}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div>
-            <label>Description:</label>
-            <textarea
-              name='description'
-              value={newEvent.description}
-              onChange={handleInputChange}
-            ></textarea>
-          </div>
-          <div>
-            <label>Time:</label>
-            <input
-              type='datetime-local'
-              name='time'
-              value={newEvent.time}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <button type='submit'>Add Event</button>
-        </form>
-      )}
+          );
+        })}
+      </ul>
     </div>
   );
-}
+};
 
 export default Events;

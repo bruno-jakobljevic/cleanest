@@ -1,41 +1,58 @@
-import React from 'react';
+const Register = ({
+  registrationUser,
+  setRegistrationUser,
+  handleRegister,
+}) => {
+  const handleChange = (e) => {
+    setRegistrationUser({
+      ...registrationUser,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-function Register({ user, onChange, onSubmit, response }) {
   return (
     <>
-      <form onSubmit={onSubmit}>
-        <h2>Register:</h2>
+      <form onSubmit={handleRegister}>
+        <h1>Register:</h1>
         <div>
           <label>E-mail:</label>
           <input
             type='email'
             name='email'
-            value={user.email}
-            onChange={onChange}
+            value={registrationUser.email}
+            onChange={handleChange}
             required
           />
           <label>Username:</label>
           <input
             type='text'
             name='username'
-            value={user.username}
-            onChange={onChange}
+            value={registrationUser.username}
+            onChange={handleChange}
             required
           />
           <label>Password:</label>
           <input
             type='password'
             name='password'
-            value={user.password}
-            onChange={onChange}
+            value={registrationUser.password}
+            onChange={handleChange}
             required
           />
+          <label>Confirm Password:</label>
+          <input
+            type='password'
+            name='confirmPassword'
+            value={registrationUser.confirmPassword}
+            onChange={handleChange}
+          />
         </div>
-        <button type='submit'>Submit User</button>
-        {response && <div>{response.data.message}</div>}
+        <button className='event-button' type='submit'>
+          Register
+        </button>
       </form>
     </>
   );
-}
+};
 
 export default Register;

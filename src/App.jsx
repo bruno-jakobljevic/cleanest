@@ -1,236 +1,437 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { jwtDecode } from 'jwt-decode';
+import { useState, useEffect } from 'react';
 
 import Login from './components/Login';
 import Register from './components/Register';
 import ImageAndMapUpload from './components/ImageAndMapUpload';
-import Tasks from './components/Tasks';
 import Reports from './components/Reports';
-import Users from './components/Users';
+import ReportsEmployee from './components/ReportsEmployee';
 import Events from './components/Events';
+import AddEvent from './components/AddEvent';
+import Users from './components/Users';
+import UsersAdmin from './components/UsersAdmin';
 import ReportsManager from './components/ReportsManager';
 
-const initialUser = {
-  email: '',
-  username: '',
-  password: '',
-};
+import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
+import './App.css';
+import icon from './assets/icon.png';
+import Swal from 'sweetalert2';
 
-function App() {
+const App = () => {
+  const [user, setUser] = useState({
+    username: '',
+    password: '',
+  });
+  const [registrationUser, setRegistrationUser] = useState({
+    email: '',
+    username: '',
+    password: '',
+    confirmPassword: '',
+  });
+
   const [token, setToken] = useState(localStorage.getItem('token'));
-  const [decoded, setDecoded] = useState(null);
-  const [events, setEvents] = useState([]);
+  const [decoded, setDecoded] = useState(token ? jwtDecode(token) : null);
   const [reports, setReports] = useState([]);
-  const [tasks, setTasks] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [user, setUser] = useState(initialUser);
-  const [response, setResponse] = useState('');
+  const [statuses, setStatuses] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [applications, setApplications] = useState([]);
   const [status, setStatus] = useState(4);
+
+  const [allUsers, setAllUsers] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [managers, setManagers] = useState([]);
+
+  const [response, setResponse] = useState('');
+  const [activeComponent, setActiveComponent] = useState('reports');
 
   useEffect(() => {
     if (token) {
       const decodedToken = jwtDecode(token);
       setDecoded(decodedToken);
-      fetchEvents();
-      fetchReports();
-      fetchTasks();
-      fetchUsers();
     }
+    const fetchReports = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/reports');
+        setReports(response.data);
+      } catch (error) {
+        console.error('Error fetching reports:', error);
+      }
+    };
+    const fetchApplications = async () => {
+      try {
+        const response = await axios.get(
+          'http://localhost:3001/userEventApplications/applications'
+        );
+        setApplications(response.data);
+      } catch (error) {
+        console.error('Error fetching applications:', error);
+      }
+    };
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/events');
+        setEvents(response.data);
+      } catch (error) {
+        console.error('Error getting the events:', error);
+      }
+    };
+    const fetchStatuses = async () => {
+      try {
+        const response = await axios.get(
+          'http://localhost:3001/reports/reportStatuses'
+        );
+        setStatuses(response.data);
+      } catch (error) {
+        console.error('Error fetching applications:', error);
+      }
+    };
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get(
+          'http://localhost:3001/users/employees'
+        );
+        setEmployees(response.data);
+      } catch (error) {
+        console.error('Error fetching employees:', error);
+      }
+    };
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/users/users');
+        setUsers(response.data);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+    const fetchManagers = async () => {
+      try {
+        const response = await axios.get(
+          'http://localhost:3001/users/managers'
+        );
+        setManagers(response.data);
+      } catch (error) {
+        console.error('Error fetching managers:', error);
+      }
+    };
+    const fetchAllUsers = async () => {
+      try {
+        const response = await axios.get(
+          'http://localhost:3001/users/allUsers'
+        );
+        setAllUsers(response.data);
+      } catch (error) {
+        console.error('Error fetching all users:', error);
+      }
+    };
+    fetchEvents();
+    fetchReports();
+    fetchApplications();
+    fetchStatuses();
+    fetchEmployees();
+    fetchUsers();
+    fetchManagers();
+    fetchAllUsers();
   }, [token]);
 
-  const fetchEvents = () => {
+  const handleLogin = (e) => {
+    e.preventDefault();
     axios
-      .get('http://localhost:3001/events')
-      .then((response) => setEvents(response.data))
-      .catch((error) => console.error('Error getting the events:', error));
-  };
-
-  const fetchReports = () => {
-    axios
-      .get('http://localhost:3001/reports')
-      .then((response) => setReports(response.data))
-      .catch((error) => console.error('Error fetching reports:', error));
-  };
-
-  const fetchTasks = () => {
-    axios
-      .get('http://localhost:3001/tasks')
-      .then((response) => setTasks(response.data))
-      .catch((error) => console.error('Error fetching tasks:', error));
-  };
-
-  const fetchUsers = () => {
-    axios
-      .get('http://localhost:3001/users')
-      .then((response) => setUsers(response.data))
-      .catch((error) => console.error('Error fetching users:', error));
-  };
-
-  const handleStatusChange = (reportId, statusId) => {
-    axios
-      .put(`http://localhost:3001/reports/${reportId}/status`, {
-        status_id: statusId,
+      .post('http://localhost:3001/auth/login', user)
+      .then((res) => {
+        setResponse(res);
+        localStorage.setItem('token', res.data.token);
+        const token = localStorage.getItem('token');
+        const decoded = jwtDecode(token);
+        setToken(token);
+        setDecoded(decoded);
+        setUser({ username: '', password: '' });
+        setActiveComponent('reports');
+        Swal.fire({
+          text: 'Logged in',
+          showConfirmButton: false,
+          timer: 1500,
+          icon: 'success',
+        });
       })
-      .then(() => {
-        setReports((prevReports) =>
-          prevReports.map((report) =>
-            report.id === reportId ? { ...report, status_id: statusId } : report
-          )
-        );
-      })
-      .catch((error) => console.error('Error updating status:', error));
-  };
-
-  const handleCheckChange = (reportId, isChecked) => {
-    axios
-      .put(`http://localhost:3001/reports/${reportId}/check`, {
-        is_checked: isChecked,
-      })
-      .then(() => {
-        setReports((prevReports) =>
-          prevReports.map((report) =>
-            report.id === reportId
-              ? { ...report, is_checked: isChecked }
-              : report
-          )
-        );
-      })
-      .catch((error) => console.error('Error updating check status:', error));
-  };
-
-  const handleDelete = (reportId) => {
-    axios
-      .delete(`http://localhost:3001/reports/${reportId}`)
-      .then(() => {
-        setReports((prevReports) =>
-          prevReports.filter((report) => report.id !== reportId)
-        );
-      })
-      .catch((error) => console.error('Error deleting report:', error));
+      .catch((error) => {
+        Swal.fire({
+          icon: 'Error',
+          text: 'Error logging in',
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        console.error(error);
+      });
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setToken(null);
     setDecoded(null);
-  };
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    axios
-      .post('http://localhost:3001/login', user)
-      .then((res) => {
-        setResponse(res);
-        localStorage.setItem('token', res.data.token);
-        const token = localStorage.getItem('token');
-        setToken(token);
-        const decodedToken = jwtDecode(token);
-        setDecoded(decodedToken);
-      })
-      .catch((error) => console.error(error));
+    setActiveComponent('reports');
   };
 
   const handleRegister = (e) => {
     e.preventDefault();
-    axios
-      .post('http://localhost:3001/register', user)
-      .then((res) => {
-        setResponse(res);
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const handleChange = (e) => {
-    setUser({
-      ...user,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleTaskSubmit = async (taskData) => {
-    try {
-      await axios.post('http://localhost:3001/tasks', taskData);
-      fetchTasks(); // Refresh tasks after adding a new one
-    } catch (error) {
-      console.error('Error adding task:', error);
+    if (registrationUser.password !== registrationUser.confirmPassword) {
+      Swal.fire({
+        text: 'Passwords do not match',
+        showConfirmButton: false,
+        timer: 1500,
+        icon: 'error',
+      });
+      return;
     }
-  };
-
-  const handleRoleChange = (userId, newRoleId) => {
     axios
-      .put(`http://localhost:3001/users/${userId}/role`, { role_id: newRoleId })
-      .then(() => {
-        setUsers((prevUsers) =>
-          prevUsers.map((user) =>
-            user.id === userId ? { ...user, role_id: newRoleId } : user
-          )
-        );
+      .post('http://localhost:3001/auth/register', registrationUser)
+      .then((res) => {
+        Swal.fire({
+          text: 'Registered successfully',
+          showConfirmButton: false,
+          timer: 1500,
+          icon: 'success',
+        });
+        setRegistrationUser({
+          email: '',
+          username: '',
+          password: '',
+          confirmPassword: '',
+        });
+        setActiveComponent('');
       })
-      .catch((error) => console.error('Error updating user role:', error));
+      .catch((error) => {
+        if (error.response && error.response.status === 400) {
+          Swal.fire({
+            text: error.response.data.message,
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+          });
+        } else {
+          Swal.fire({
+            text: 'An error occurred',
+            showConfirmButton: false,
+            timer: 1500,
+            icon: 'error',
+          });
+        }
+      });
   };
-
-  const filteredReports = reports.filter(
-    (report) => status === 4 || report.status_id === status
-  );
 
   return (
     <>
-      <div>
-        {token && <button onClick={handleLogout}>Logout</button>}
-        {token && (
-          <Events
-            events={events}
-            roleId={decoded.role_id}
-            onApply={applyToEvent}
-            onSubmit={handleEventSubmit}
+      <header className='header'>
+        <div className='header-content'>
+          <h1
+            className='app-title'
+            onClick={() => setActiveComponent('reports')}
+          >
+            CleaneST
+          </h1>
+          <img
+            src={icon}
+            alt='App Icon'
+            className='app-icon'
+            onClick={() => setActiveComponent('reports')}
           />
-        )}
-        {!token && (
-          <Reports
-            reports={filteredReports}
-            status={status}
-            setStatus={setStatus}
-          />
-        )}
-      </div>
+        </div>
+      </header>
+      <main className='main'>
+        <nav className='vertical-nav'>
+          {!token && (
+            <>
+              <button
+                className='nav-button'
+                onClick={() => setActiveComponent('login')}
+              >
+                Login
+              </button>
+              <button
+                className='nav-button'
+                onClick={() => setActiveComponent('register')}
+              >
+                Register
+              </button>
+            </>
+          )}
 
-      <div>
-        {!token && (
-          <Login
-            user={user}
-            onChange={handleChange}
-            onSubmit={handleLogin}
-            response={response}
-          />
-        )}
-        {!token && (
-          <Register
-            user={user}
-            onChange={handleChange}
-            onSubmit={handleRegister}
-            response={response}
-          />
-        )}
-        {token && <ImageAndMapUpload />}
-        {decoded?.role_id >= 2 && (
-          <Tasks tasks={tasks} onTaskSubmit={handleTaskSubmit} />
-        )}
-        {decoded?.role_id >= 3 && (
-          <ReportsManager
-            reports={reports}
-            roleId={decoded.role_id}
-            onStatusChange={handleStatusChange}
-            onCheckChange={handleCheckChange}
-            onDelete={handleDelete}
-          />
-        )}
-        {decoded?.role_id >= 3 && (
-          <Users users={users} onRoleChange={handleRoleChange} />
-        )}
-      </div>
+          <button
+            className='nav-button'
+            onClick={() => setActiveComponent('reports')}
+          >
+            Reports
+          </button>
+          {token && (
+            <>
+              <button
+                className='nav-button'
+                onClick={() => setActiveComponent('events')}
+              >
+                Events
+              </button>
+              <button
+                className='nav-button'
+                onClick={() => setActiveComponent('imageandmapupload')}
+              >
+                Make a report
+              </button>
+              {decoded.role_id >= 3 && (
+                <>
+                  <button
+                    className='nav-button'
+                    onClick={() => setActiveComponent('addEvent')}
+                  >
+                    Add event
+                  </button>
+                  <button
+                    className='nav-button'
+                    onClick={() => setActiveComponent('reportsManager')}
+                  >
+                    Reports Manager
+                  </button>
+                </>
+              )}
+              {decoded.role_id === 2 && (
+                <button
+                  className='nav-button'
+                  onClick={() => setActiveComponent('reportsEmployee')}
+                >
+                  My tasks
+                </button>
+              )}
+              {decoded.role_id === 3 && (
+                <button
+                  className='nav-button'
+                  onClick={() => setActiveComponent('users')}
+                >
+                  Users
+                </button>
+              )}
+              {decoded.role_id === 4 && (
+                <button
+                  className='nav-button'
+                  onClick={() => setActiveComponent('usersAdmin')}
+                >
+                  Users
+                </button>
+              )}
+            </>
+          )}
+          {token && (
+            <button className='nav-button' onClick={handleLogout}>
+              Logout
+            </button>
+          )}
+        </nav>
+
+        <div className='content'>
+          {activeComponent === 'login' && (
+            <Login user={user} setUser={setUser} handleLogin={handleLogin} />
+          )}
+          {activeComponent === 'register' && (
+            <Register
+              registrationUser={registrationUser}
+              setRegistrationUser={setRegistrationUser}
+              handleRegister={handleRegister}
+            />
+          )}
+          {activeComponent === 'reports' && (
+            <Reports
+              reports={reports}
+              status={status}
+              setStatus={setStatus}
+              statuses={statuses}
+            />
+          )}
+          {activeComponent === 'events' && (
+            <Events
+              decoded={decoded}
+              events={events}
+              setEvents={setEvents}
+              applications={applications}
+              setApplications={setApplications}
+              allUsers={allUsers}
+            />
+          )}
+          {activeComponent === 'addEvent' && (
+            <AddEvent events={events} setEvents={setEvents} decoded={decoded} />
+          )}
+          {activeComponent === 'reportsEmployee' && (
+            <ReportsEmployee
+              reports={reports}
+              setReports={setReports}
+              statuses={statuses}
+              decoded={decoded}
+            />
+          )}
+          {activeComponent === 'reportsManager' && (
+            <ReportsManager
+              reports={reports}
+              setReports={setReports}
+              employees={employees}
+              statuses={statuses}
+              decoded={decoded}
+            />
+          )}
+          {activeComponent === 'users' && (
+            <Users users={users} employees={employees} reports={reports} />
+          )}
+          {activeComponent === 'usersAdmin' && (
+            <UsersAdmin
+              users={users}
+              setUsers={setUsers}
+              employees={employees}
+              setEmployees={setEmployees}
+              managers={managers}
+              setManagers={setManagers}
+            />
+          )}
+          {activeComponent === 'imageandmapupload' && (
+            <ImageAndMapUpload
+              decoded={decoded}
+              reports={reports}
+              setReports={setReports}
+            />
+          )}
+        </div>
+      </main>
+      <footer>
+        <a
+          href='https://github.com/bruno-jakobljevic'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          <span style={{ color: '#ff5722' }}>
+            <i className='fa-brands fa-github fa-2xl'></i>
+          </span>
+          <span className='sr-only'>GitHub</span>
+        </a>
+        <a
+          href='https://www.instagram.com/brunojakobljevic/'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          <span style={{ color: '#ff5722' }}>
+            <i className='fa-brands fa-instagram fa-2xl'></i>
+          </span>
+          <span className='sr-only'>Instagram</span>
+        </a>
+        <a
+          href='https://www.linkedin.com/in/bruno-jakobljevi%C4%87-3869a5216/'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          <span style={{ color: '#ff5722' }}>
+            <i className='fa-brands fa-linkedin-in fa-2xl'></i>
+          </span>
+          <span className='sr-only'>Back to Top</span>
+        </a>
+        <p>&copy; 2024 CleaneST</p>
+      </footer>
     </>
   );
-}
+};
 
 export default App;
+
