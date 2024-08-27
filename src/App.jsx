@@ -239,6 +239,12 @@ const App = () => {
       </header>
       <main className='main'>
         <nav className='vertical-nav'>
+          <button
+            className='nav-button'
+            onClick={() => setActiveComponent('reports')}
+          >
+            Home
+          </button>
           {!token && (
             <>
               <button
@@ -256,12 +262,6 @@ const App = () => {
             </>
           )}
 
-          <button
-            className='nav-button'
-            onClick={() => setActiveComponent('reports')}
-          >
-            Reports
-          </button>
           {token && (
             <>
               <button

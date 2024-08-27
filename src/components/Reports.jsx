@@ -22,7 +22,7 @@ const Reports = ({ reports, status, setStatus, statuses }) => {
             center={solinCoordinates}
             zoom={15}
             reports-content
-            style={{ height: '90vh', width: '45rem' }}
+            style={{ height: '90vh', width: '50rem' }}
             scrollWheelZoom={false}
             doubleClickZoom={false}
           >
