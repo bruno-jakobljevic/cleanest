@@ -15,94 +15,92 @@ const Reports = ({ reports, status, setStatus, statuses }) => {
     (report) => status === 4 || report.status_id === status
   );
   return (
-    <>
-      <div className='reports-content'>
-        <div className='map-container'>
-          <MapContainer
-            center={solinCoordinates}
-            zoom={15}
-            reports-content
-            style={{ height: '90vh', width: '50rem' }}
-            scrollWheelZoom={false}
-            doubleClickZoom={false}
-          >
-            <TileLayer
-              url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
+    <div className='reports-content'>
+      <div className='map-container'>
+        <MapContainer
+          center={solinCoordinates}
+          zoom={15}
+          reports-content
+          className='reports-map'
+          scrollWheelZoom={false}
+          doubleClickZoom={false}
+        >
+          <TileLayer
+            url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
 
-            {filteredReports.map((report) => (
-              <Marker
-                key={report.id}
-                position={[Number(report.latitude), Number(report.longitude)]}
-                icon={getIconByStatus(report.status_id)}
-              >
-                <Popup>
-                  <strong>Description: </strong>
-                  {report.description ? report.description : 'No description'}
-                  <br />
-                  <strong>Status:</strong> {statusLookup[report.status_id]}
-                  <br />
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
-        </div>
-        <div className='card'>
-          <h3>Filter by status:</h3>
-          <div className='card-container'>
-            <label>
-              <input
-                type='radio'
-                name='status'
-                value={1}
-                checked={status === 1}
-                onChange={() => setStatus(1)}
-                className='custom-radio'
-                id='outline'
-              />
-              Pending
-            </label>
-            <label>
-              <input
-                type='radio'
-                name='status'
-                value={2}
-                checked={status === 2}
-                onChange={() => setStatus(2)}
-                className='custom-radio'
-                id='outline'
-              />
-              In Progress
-            </label>
-            <label>
-              <input
-                type='radio'
-                name='status'
-                value={3}
-                checked={status === 3}
-                onChange={() => setStatus(3)}
-                className='custom-radio'
-                id='outline'
-              />
-              Resolved
-            </label>
-            <label>
-              <input
-                type='radio'
-                name='status'
-                value={4}
-                checked={status === 4}
-                onChange={() => setStatus(4)}
-                className='custom-radio'
-                id='outline'
-              />
-              All
-            </label>
-          </div>
+          {filteredReports.map((report) => (
+            <Marker
+              key={report.id}
+              position={[Number(report.latitude), Number(report.longitude)]}
+              icon={getIconByStatus(report.status_id)}
+            >
+              <Popup>
+                <strong>Description: </strong>
+                {report.description ? report.description : 'No description'}
+                <br />
+                <strong>Status:</strong> {statusLookup[report.status_id]}
+                <br />
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
+      <div className='filter'>
+        <h2>Status:</h2>
+        <div className='card-container'>
+          <label>
+            <input
+              type='radio'
+              name='status'
+              value={1}
+              checked={status === 1}
+              onChange={() => setStatus(1)}
+              className='custom-radio'
+              id='outline'
+            />
+            Pending
+          </label>
+          <label>
+            <input
+              type='radio'
+              name='status'
+              value={2}
+              checked={status === 2}
+              onChange={() => setStatus(2)}
+              className='custom-radio'
+              id='outline'
+            />
+            In Progress
+          </label>
+          <label>
+            <input
+              type='radio'
+              name='status'
+              value={3}
+              checked={status === 3}
+              onChange={() => setStatus(3)}
+              className='custom-radio'
+              id='outline'
+            />
+            Resolved
+          </label>
+          <label>
+            <input
+              type='radio'
+              name='status'
+              value={4}
+              checked={status === 4}
+              onChange={() => setStatus(4)}
+              className='custom-radio'
+              id='outline'
+            />
+            All Reports
+          </label>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

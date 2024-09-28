@@ -40,61 +40,67 @@ const Users = ({ users, employees, reports }) => {
 
   return (
     <div>
-      <h1>Users</h1>
-      <table className='users'>
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Username</th>
-            <th>Last Login</th>
-            <th>Reports Submitted</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td>{user.email}</td>
-              <td>{user.username}</td>
-              <td>{user.last_login}</td>
-              <td>
-                {userReports[user.id] !== undefined ? userReports[user.id] : 0}
-              </td>
+      <h1 className='table-header'>Users</h1>
+      <div style={{ overflow: 'auto' }}>
+        <table className='users'>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Username</th>
+              <th>Last Login</th>
+              <th>Reports Submitted</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td>{user.email}</td>
+                <td>{user.username}</td>
+                <td>{user.last_login}</td>
+                <td>
+                  {userReports[user.id] !== undefined
+                    ? userReports[user.id]
+                    : 0}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      <h1>Employees</h1>
-      <table className='users'>
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Username</th>
-            <th>Last Login</th>
-            <th>Assigned Reports</th>
-            <th>Resolved Reports</th>
-          </tr>
-        </thead>
-        <tbody>
-          {employees.map((employee) => (
-            <tr key={employee.id}>
-              <td>{employee.email}</td>
-              <td>{employee.username}</td>
-              <td>{employee.last_login}</td>
-              <td>
-                {employeeTasks[employee.id] !== undefined
-                  ? employeeTasks[employee.id]
-                  : 0}
-              </td>
-              <td>
-                {employeeResolved[employee.id] !== undefined
-                  ? employeeResolved[employee.id]
-                  : 0}
-              </td>
+      <h1 className='table-header'>Employees</h1>
+      <div style={{ overflow: 'auto' }}>
+        <table className='users'>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Username</th>
+              <th>Last Login</th>
+              <th>Assigned Reports</th>
+              <th>Resolved Reports</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {employees.map((employee) => (
+              <tr key={employee.id}>
+                <td>{employee.email}</td>
+                <td>{employee.username}</td>
+                <td>{employee.last_login}</td>
+                <td>
+                  {employeeTasks[employee.id] !== undefined
+                    ? employeeTasks[employee.id]
+                    : 0}
+                </td>
+                <td>
+                  {employeeResolved[employee.id] !== undefined
+                    ? employeeResolved[employee.id]
+                    : 0}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

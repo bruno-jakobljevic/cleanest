@@ -46,12 +46,12 @@ function ImageAndMapUpload({ decoded, reports, setReports }) {
   };
 
   const handleAddReport = (e) => {
+    e.preventDefault();
     if (!file) {
-      e.preventDefault();
       Swal.fire({
-        text: 'Please select an image to upload.',
+        text: 'Please upload an image',
         showConfirmButton: false,
-        timer: 1500,
+        timer: 2500,
         icon: 'error',
       });
       return;
@@ -62,13 +62,12 @@ function ImageAndMapUpload({ decoded, reports, setReports }) {
       latitude: position.lat,
       longitude: position.lng,
     };
-
+    console.log(updatedReport);
     if (isNearby(reports, updatedReport.latitude, updatedReport.longitude)) {
-      e.preventDefault();
       Swal.fire({
-        text: 'A report has already been submitted at this location.',
+        text: 'A report has already been submitted at this location',
         showConfirmButton: false,
-        timer: 1500,
+        timer: 2500,
         icon: 'error',
       });
       return;
@@ -90,23 +89,42 @@ function ImageAndMapUpload({ decoded, reports, setReports }) {
       .post('http://localhost:3001/reports/addReport', updatedReport)
       .catch((error) => console.error(error));
     Swal.fire({
-      text: "You've successfully created a report!",
+      text: 'Report created!',
       showConfirmButton: false,
       timer: 1500,
       icon: 'success',
     });
-    $(this).unbind('submit').submit()
+    setReport({
+      latitude: 43.54431,
+      longitude: 16.48533,
+      description: '',
+      image_url: '',
+      status_id: 1,
+      user_id: decoded.user_id,
+    });
+    setTimeout(() => {
+      location.reload();
+    }, '1000');
   };
 
   return (
     <form onSubmit={handleAddReport}>
-      <h1>Add report</h1>
-      <input type='file' onChange={handleFileChange} accept='image/*' />
+      <h1>ADD REPORT</h1>
+      <input
+        type='file'
+        onChange={handleFileChange}
+        accept='image/*'
+        id='file'
+        style={{ display: 'none' }}
+      />
+      <label for='file' className='img-upload'>
+        Image...
+      </label>
       <MapContainer
         center={center}
         zoom={15}
         scrollWheelZoom={false}
-        style={{ height: '400px', width: '400px' }}
+        className='map'
       >
         <TileLayer
           url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -126,7 +144,7 @@ function ImageAndMapUpload({ decoded, reports, setReports }) {
         onChange={handleChange}
       ></textarea>
       <button className='event-button' type='submit'>
-        Submit Report
+        Submit
       </button>
     </form>
   );

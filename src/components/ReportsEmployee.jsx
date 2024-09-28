@@ -49,7 +49,6 @@ const ReportsEmployee = ({ reports, setReports, statuses, decoded }) => {
       );
       setEmployeeReports(updatedReports);
 
-      // Also update the parent component's state
       const updatedAllReports = reports.map((report) =>
         report.id === reportId
           ? { ...report, status_id: selectedStatus }
@@ -74,7 +73,7 @@ const ReportsEmployee = ({ reports, setReports, statuses, decoded }) => {
     <div className='main-container'>
       <ul className='events'>
         {employeeReports.map((report) => (
-          <li key={report.id} className='card-container'>
+          <li key={report.id} className='card'>
             <p>
               <strong>Location: </strong>
               <a
@@ -113,11 +112,13 @@ const ReportsEmployee = ({ reports, setReports, statuses, decoded }) => {
                       setSelectedStatus(parseInt(e.target.value))
                     }
                   >
-                    {statuses.map((status) => (
-                      <option key={status.id} value={status.id}>
-                        {status.name}
-                      </option>
-                    ))}
+                    {statuses
+                      .filter((status) => status.name !== 'Pending')
+                      .map((status) => (
+                        <option key={status.id} value={status.id}>
+                          {status.name}
+                        </option>
+                      ))}
                   </select>
                 </p>
                 <div className='container'>
@@ -125,7 +126,7 @@ const ReportsEmployee = ({ reports, setReports, statuses, decoded }) => {
                     className='event-button'
                     onClick={() => handleApplyClick(report.id)}
                   >
-                    Apply changes
+                    Apply
                   </button>
                   <button className='event-button' onClick={handleCancelClick}>
                     Cancel

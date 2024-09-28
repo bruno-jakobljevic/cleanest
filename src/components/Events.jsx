@@ -1,6 +1,5 @@
 import axios from 'axios';
-import Swal
- from 'sweetalert2';
+import Swal from 'sweetalert2';
 const Events = ({
   decoded,
   events,
@@ -23,7 +22,7 @@ const Events = ({
           { user_id: userId, event_id: eventId },
         ]);
         Swal.fire({
-          text: "You've successfully applied to the event!",
+          text: 'Apllied!',
           showConfirmButton: false,
           timer: 1500,
           icon: 'success',
@@ -43,9 +42,14 @@ const Events = ({
         `http://localhost:3001/userEventApplications/unapply/${userId}/${eventId}`
       );
       if (response.status === 200) {
-        setApplications(applications.filter((app) => app.event_id !== eventId));
+        console.log(applications);
+        const updatedApplications = applications.filter(
+          (app) => !(app.event_id === eventId && app.user_id === userId)
+        );
+        console.log(updatedApplications);
+        setApplications(updatedApplications);
         Swal.fire({
-          text: "You've successfully unapplied from the event!",
+          text: 'Unapplied!',
           showConfirmButton: false,
           timer: 1500,
           icon: 'success',
@@ -70,7 +74,7 @@ const Events = ({
         );
         setEvents(events.filter((event) => event.id !== eventId));
         Swal.fire({
-          text: 'Event deleted successfully!',
+          text: 'Event deleted!',
           showConfirmButton: false,
           timer: 1500,
           icon: 'success',
@@ -109,17 +113,14 @@ const Events = ({
 
   return (
     <div className='main-container'>
-      <ul className='events'>
+      <ul className='events-container'>
         {events.map((event) => {
           const eventApplications = getEventApplications(event.id);
           const isUserAppliedToEvent = isUserApplied(event.id);
           return (
-            <li key={event.id} className='card card-contaier'>
+            <li key={event.id} className='card event-card'>
               <h3>{event.name.toUpperCase()}</h3>
-              <p>
-                <strong>Description: </strong>
-                {event.description}
-              </p>
+              <p>{event.description}</p>
               <p>
                 <strong>Location: </strong>
                 {event.location}
@@ -127,6 +128,13 @@ const Events = ({
               <p>
                 <strong>Time: </strong>
                 {new Date(event.time).toLocaleString()}
+              </p>
+              <p>
+                {getEventApplications(event.id).length + ' '}
+                <span style={{ color: '#ff5722' }}>
+                  <i className='fa-solid fa-people-group fa-2xl'></i>
+                </span>
+                <span className='sr-only'>People</span>
               </p>
               {roleId < 3 ? (
                 isUserAppliedToEvent ? (

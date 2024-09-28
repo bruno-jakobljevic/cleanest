@@ -10,7 +10,7 @@ const Login = ({ user, setUser, handleLogin }) => {
 
   return (
     <form onSubmit={handleLogin}>
-      <h1>Login</h1>
+      <h1>LOGIN</h1>
       <input
         type='text'
         name='username'

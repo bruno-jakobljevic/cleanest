@@ -31,7 +31,7 @@ const AddEvent = ({ events, setEvents, decoded }) => {
       );
       setEvents([...events, { ...newEvent, id: response.data.id }]);
       Swal.fire({
-        text: 'Event added successfully!',
+        text: 'Event added!',
         showConfirmButton: false,
         timer: 1500,
         icon: 'success',
@@ -57,7 +57,7 @@ const AddEvent = ({ events, setEvents, decoded }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h1>Add Event</h1>
+      <h1>ADD EVENT</h1>
       <label>Event Name:</label>
       <input
         type='text'
@@ -89,8 +89,8 @@ const AddEvent = ({ events, setEvents, decoded }) => {
         onChange={handleChange}
         required
       />
-      <button className='' type='submit'>
-        Add Event
+      <button className='event-button' type='submit'>
+        Submit
       </button>
     </form>
   );

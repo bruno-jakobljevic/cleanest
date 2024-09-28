@@ -14,7 +14,6 @@ import ReportsManager from './components/ReportsManager';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import './App.css';
-import icon from './assets/icon.png';
 import Swal from 'sweetalert2';
 
 const App = () => {
@@ -156,7 +155,7 @@ const App = () => {
       })
       .catch((error) => {
         Swal.fire({
-          icon: 'Error',
+          icon: 'error',
           text: 'Error logging in',
           showConfirmButton: false,
           timer: 1500,
@@ -169,6 +168,12 @@ const App = () => {
     localStorage.removeItem('token');
     setToken(null);
     setDecoded(null);
+    Swal.fire({
+      text: 'Logged out',
+      showConfirmButton: false,
+      timer: 1500,
+      icon: 'success',
+    });
     setActiveComponent('reports');
   };
 
@@ -187,7 +192,7 @@ const App = () => {
       .post('http://localhost:3001/auth/register', registrationUser)
       .then((res) => {
         Swal.fire({
-          text: 'Registered successfully',
+          text: 'Registered',
           showConfirmButton: false,
           timer: 1500,
           icon: 'success',
@@ -198,7 +203,7 @@ const App = () => {
           password: '',
           confirmPassword: '',
         });
-        setActiveComponent('');
+        setActiveComponent('reports');
       })
       .catch((error) => {
         if (error.response && error.response.status === 400) {
@@ -227,14 +232,8 @@ const App = () => {
             className='app-title'
             onClick={() => setActiveComponent('reports')}
           >
-            CleaneST
+            cleane.st
           </h1>
-          <img
-            src={icon}
-            alt='App Icon'
-            className='app-icon'
-            onClick={() => setActiveComponent('reports')}
-          />
         </div>
       </header>
       <main className='main'>
@@ -274,7 +273,7 @@ const App = () => {
                 className='nav-button'
                 onClick={() => setActiveComponent('imageandmapupload')}
               >
-                Make a report
+                Add report
               </button>
               {decoded.role_id >= 3 && (
                 <>
@@ -288,7 +287,7 @@ const App = () => {
                     className='nav-button'
                     onClick={() => setActiveComponent('reportsManager')}
                   >
-                    Reports Manager
+                    Reports
                   </button>
                 </>
               )}
@@ -425,7 +424,7 @@ const App = () => {
           <span style={{ color: '#ff5722' }}>
             <i className='fa-brands fa-linkedin-in fa-2xl'></i>
           </span>
-          <span className='sr-only'>Back to Top</span>
+          <span className='sr-only'>Linked In</span>
         </a>
         <p>&copy; 2024 CleaneST</p>
       </footer>

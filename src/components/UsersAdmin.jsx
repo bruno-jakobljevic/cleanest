@@ -25,11 +25,13 @@ const UsersAdmin = ({
 
   const handleApplyClick = async (userId) => {
     try {
+      if (newRoleId == null) {
+        throw new Error('Role ID is not defined');
+      }
+
       await axios.put(`http://localhost:3001/users/adminEditUser/${userId}`, {
         role_id: newRoleId,
       });
-      setEditUserId(null);
-      setNewRoleId(null);
 
       const updatedUsers = users.map((user) =>
         user.id === userId ? { ...user, role_id: newRoleId } : user
@@ -41,12 +43,6 @@ const UsersAdmin = ({
         manager.id === userId ? { ...manager, role_id: newRoleId } : manager
       );
 
-      setUsers(updatedUsers.filter((user) => user.role_id === 1));
-      setEmployees(
-        updatedEmployees.filter((employee) => employee.role_id === 2)
-      );
-      setManagers(updatedManagers.filter((manager) => manager.role_id === 3));
-
       const allUpdatedUsers = [
         ...updatedUsers,
         ...updatedEmployees,
@@ -55,14 +51,24 @@ const UsersAdmin = ({
       setUsers(allUpdatedUsers.filter((user) => user.role_id === 1));
       setEmployees(allUpdatedUsers.filter((user) => user.role_id === 2));
       setManagers(allUpdatedUsers.filter((user) => user.role_id === 3));
-      Swal.fire({
-        text: 'Successfully updated role of user!',
+
+      setEditUserId(null);
+      setNewRoleId(null);
+
+      await Swal.fire({
+        text: 'User updated!',
         showConfirmButton: false,
         timer: 1500,
         icon: 'success',
       });
     } catch (error) {
       console.error('Error updating user role:', error);
+      Swal.fire({
+        text: 'Error updating user role.',
+        showConfirmButton: false,
+        timer: 1500,
+        icon: 'error',
+      });
     }
   };
 
@@ -77,12 +83,11 @@ const UsersAdmin = ({
       const updatedManagers = managers.filter(
         (manager) => manager.id !== userId
       );
-
       setUsers(updatedUsers);
       setEmployees(updatedEmployees);
       setManagers(updatedManagers);
       Swal.fire({
-        text: "You've successfully deleted the user!",
+        text: 'User deleted!',
         showConfirmButton: false,
         timer: 1500,
         icon: 'success',
@@ -94,77 +99,82 @@ const UsersAdmin = ({
 
   const renderTable = (data, title) => (
     <div>
-      <h1>{title}</h1>
-      <table className='users'>
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Username</th>
-            <th>Last Login</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((user) => (
-            <tr key={user.id}>
-              <td>{user.email}</td>
-              <td>{user.username}</td>
-              <td>{user.last_login}</td>
-              <td>
-                {editUserId === user.id ? (
-                  <p className='custom-select'>
-                    <select
-                      value={newRoleId}
-                      onChange={(e) => setNewRoleId(Number(e.target.value))}
-                    >
-                      <option value={1}>User</option>
-                      <option value={2}>Employee</option>
-                      <option value={3}>Manager</option>
-                    </select>
-                  </p>
-                ) : user.role_id === 1 ? (
-                  'User'
-                ) : user.role_id === 2 ? (
-                  'Employee'
-                ) : (
-                  'Manager'
-                )}
-              </td>
-              <td>
-                {editUserId === user.id ? (
-                  <>
-                    <button
-                      className='user-button'
-                      onClick={() => handleApplyClick(user.id)}
-                    >
-                      Apply
-                    </button>
-                    <button className='user-button' onClick={handleCancelClick}>
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      className='user-button'
-                      onClick={() => handleEditClick(user.id, user.role_id)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className='user-button'
-                      onClick={() => handleDeleteClick(user.id)}
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-              </td>
+      <h1 className='table-header'>{title}</h1>
+      <div style={{ overflow: 'auto' }}>
+        <table className='users'>
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Username</th>
+              <th>Last Login</th>
+              <th>Role</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((user) => (
+              <tr key={user.id}>
+                <td>{user.email}</td>
+                <td>{user.username}</td>
+                <td>{user.last_login}</td>
+                <td>
+                  {editUserId === user.id ? (
+                    <p className='custom-select'>
+                      <select
+                        value={newRoleId}
+                        onChange={(e) => setNewRoleId(Number(e.target.value))}
+                      >
+                        <option value={1}>User</option>
+                        <option value={2}>Employee</option>
+                        <option value={3}>Manager</option>
+                      </select>
+                    </p>
+                  ) : user.role_id === 1 ? (
+                    'User'
+                  ) : user.role_id === 2 ? (
+                    'Employee'
+                  ) : (
+                    'Manager'
+                  )}
+                </td>
+                <td>
+                  {editUserId === user.id ? (
+                    <>
+                      <button
+                        className='user-button'
+                        onClick={() => handleApplyClick(user.id)}
+                      >
+                        Apply
+                      </button>
+                      <button
+                        className='user-button'
+                        onClick={handleCancelClick}
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        className='user-button'
+                        onClick={() => handleEditClick(user.id, user.role_id)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className='user-button'
+                        onClick={() => handleDeleteClick(user.id)}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 

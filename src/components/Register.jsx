@@ -13,7 +13,7 @@ const Register = ({
   return (
     <>
       <form onSubmit={handleRegister}>
-        <h1>Register:</h1>
+        <h1>REGISTER</h1>
         <div>
           <label>E-mail:</label>
           <input
